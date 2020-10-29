@@ -11,5 +11,5 @@ const app = require('./app');
 const port = process.env.PORT || 4200
 
 app.listen(port, () => {
-    logger.info(`Ortografix back is listening on port ${port}`);
+    logger.info(`comisarua is listening on port ${port}`);
 });

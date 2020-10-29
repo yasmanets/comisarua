@@ -1,10 +1,21 @@
 'use strict'
 
-// Se cargan los módulos
-var express = require('express');
+const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
+const exphbs = require('express-handlebars');
+const routes = require('./routes/index.routes');
 
-var app = express();
+const app = express();
+app.set('port', process.env.PORT || 4200);
+app.set('views', path.join(__dirname, 'views'));
+app.engine('.hbs', exphbs({
+    defaultLayout: 'main',
+    layoutsDir: path.join(app.get('views'), 'layouts'),
+    partialsDir: path.join(app.get('views'), 'partials'),
+    extname: '.hbs'
+}));
+app.set('view engine', '.hbs');
 
 app.use(bodyParser.urlencoded({
     extended: false,
@@ -19,5 +30,9 @@ app.use((req, res, next) => {
     res.setHeader('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
     next();
 });
+
+app.use('/', routes);
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 module.exports = app;
