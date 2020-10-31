@@ -7,7 +7,7 @@ class User {
         this.surname = user.surname;
         this.identificationNumber = user.identificationNumber;
         this.password = user.password;
-        this.role = user.role;
+        this.roleId = user.roleId;
         this.phone = user.phone;
         this.studies = user.studies;
         this.salary = user.salary;

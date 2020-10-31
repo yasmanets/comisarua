@@ -11,10 +11,11 @@ const policeController = {
 
     async newPolice(req, res, next) {
         const params = req.body;
-        const sql = 'INSERT INTO `users` (name, surnames, identificationNumber, password, role, phone, studies, salary, entryDate, departureDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const data = [`${params.name}`, `${params.surname}`, `${params.identificationNumber}`, `${params.password}`, `police`, `${params.phone}+`, `${params.studies}`, `${params.salary}`, null, null];
+        const sql = 'INSERT INTO `users` (name, surnames, identificationNumber, password, roleId, phone, studies, salary, entryDate, departureDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const data = [`${params.name}`, `${params.surname}`, `${params.identificationNumber}`, `${params.password}`, `2`, `${params.phone}+`, `${params.studies}`, `${params.salary}`, null, null];
         database.insert(sql, data)
             .then((row) => {
+                logger.info(`POST /newPolice: ${row} added`);
                 req.flash('success', 'Policia registrado con éxito');
                 return res.status(200).redirect('/')
             })
