@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(session({
     secret: 'eee',
     resave: true,
-    resaveUninitialized: true
+    saveUninitialized: true
 }));
 app.use(flash());
 app.use(mixedMiddleware.setVariables);

@@ -19,10 +19,11 @@ const policeController = {
                 return res.status(200).redirect('/')
             })
             .catch ((error) => {
+                const errors = [];
                 logger.error(`POST /newPolice: ${error}`);
                 const message = error.code === C.DUPLICATE_KEY ? 'Ya existe un policia con la misma identificación' : 'Se ha producido un error al registrar al nuevo policia.';
-                req.flash('error', message)
-                res.status(500).redirect('/')
+                errors.push({ message });
+                res.status(500).render('polices/register', { errors });
             });
     }
 }
