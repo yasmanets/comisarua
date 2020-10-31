@@ -21,14 +21,17 @@ pool.getConnection((error) => {
 });
 
 const database = {
-    async insert(sql, data) {
-        let result;
-        try {
-            result = await pool.query(sql, data);
-        }
-        catch (error) {
-            throw new Error(`insert: ${error}`);
-        }
+    insert(sql, data) {
+        return new Promise((resolve, reject) => {
+            pool.query(sql, data, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result.insertId);
+                }
+            });
+        });
     },
 }
 

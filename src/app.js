@@ -4,7 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const exphbs = require('express-handlebars');
-const routes = require('./routes/index.routes');
+const indexRoutes = require('./routes/index.routes');
+const policesRoutes = require('./routes/polices.routes');
 
 const app = express();
 app.set('port', process.env.PORT || 4200);
@@ -31,7 +32,8 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/', routes);
+app.use('/police', policesRoutes);
+app.use('/', indexRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
