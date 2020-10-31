@@ -33,6 +33,20 @@ const database = {
             });
         });
     },
+    
+    select(sql, where, params) {
+        if (where) {
+            sql += ` ${where}`;
+        }
+        return new Promise((resolve, reject) => {
+            pool.query(sql, params, (error, rows) => {
+                if (error) {
+                    reject(error);
+                }
+                resolve(rows);
+            });
+        });
+    },
 }
 
 module.exports = {

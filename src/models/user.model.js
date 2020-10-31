@@ -15,3 +15,5 @@ class User {
         this.departureDate = user.departureDate;
     }
 }
+
+module.exports = User;
