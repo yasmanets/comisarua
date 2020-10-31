@@ -13,7 +13,7 @@ const indexController = {
 
     login (req, res) {
         console.log(req.body)
-    }
+    },
 }
 
 module.exports = indexController;

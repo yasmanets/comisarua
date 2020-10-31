@@ -1,9 +1,12 @@
 'use strict'
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const path = require('path');
 const exphbs = require('express-handlebars');
+const flash = require('connect-flash');
+const session = require('express-session');
+
+const mixedMiddleware = require('./middlewares/mixed');
 const indexRoutes = require('./routes/index.routes');
 const policesRoutes = require('./routes/polices.routes');
 
@@ -17,11 +20,14 @@ app.engine('.hbs', exphbs({
     extname: '.hbs'
 }));
 app.set('view engine', '.hbs');
-
-app.use(express.urlencoded({
-    extended: false,
+app.use(express.urlencoded({ extended: false }));
+app.use(session({
+    secret: 'eee',
+    resave: true,
+    resaveUninitialized: true
 }));
-app.use(bodyParser.json());
+app.use(flash());
+app.use(mixedMiddleware.setVariables);
 
 // CORS
 app.use((req, res, next) => {
@@ -35,6 +41,6 @@ app.use((req, res, next) => {
 app.use('/police', policesRoutes);
 app.use('/', indexRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(mixedMiddleware.notFound);
 
 module.exports = app;
