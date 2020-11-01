@@ -10,4 +10,6 @@ DB_USER=xxxxx // Ask for it!
 DB_PASSWORD=xxxxx // Ask for it!
 DATABASE=xxxxx // Ask for it!
 DB_PORT=xxxxx // Ask for it!
+PR_PATH=xxxxx // Ask for it!
+PB_PATH=xxxxx // Ask for it!
 ```
