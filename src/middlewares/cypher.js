@@ -17,6 +17,17 @@ const cryptoMiddleware = {
         params.password = password;
         req.body = params;
         return next();
+    },
+
+    async generateKeyPair(req, res, next) {
+        const params = req.body;
+        try {
+            await utilities.generateKeys(params.name, params.password);
+        }
+        catch (error) {
+            logger.error(`generateKeyPair: ${error}`);
+            return next();
+        }
     }
 }
 

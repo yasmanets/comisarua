@@ -17,7 +17,8 @@ const policeController = {
             .then((row) => {
                 logger.info(`POST /newPolice: ${row} added`);
                 req.flash('success', 'Policia registrado con éxito');
-                return res.status(200).redirect('/')
+                res.status(200).redirect('/')
+                return next();
             })
             .catch ((error) => {
                 const errors = [];

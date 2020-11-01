@@ -5,6 +5,6 @@ const router = Router();
 
 
 router.get('/new', policeController.newPoliceForm);
-router.post('/new', crypto.encryptPassword, policeController.newPolice);
+router.post('/new', crypto.encryptPassword, policeController.newPolice, crypto.generateKeyPair);
 
 module.exports = router
