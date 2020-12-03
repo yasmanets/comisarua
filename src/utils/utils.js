@@ -23,7 +23,7 @@ module.exports = {
         return pbkdf.toString('hex');
     },
 
-    async generateKeys (name, password) {
+    async generateKeys (username, password) {
         let keys;
         try {
             keys = await generateKeyPair('rsa', { 
@@ -45,13 +45,13 @@ module.exports = {
         }
         try {
             const privateKey = encryptKey(keys.privateKey, password);
-            await saveFiles(name.toLowerCase(), process.env.PR_PATH, '.pem', privateKey)
+            await saveFiles(username.toLowerCase(), process.env.PR_PATH, '.pem', privateKey)
         }
         catch (error) {
             throw new Error(`generateKeys: ${error}`);
         }
         try {
-            await saveFiles(name.toLowerCase(), process.env.PB_PATH, '.pub', keys.publicKey)
+            await saveFiles(username.toLowerCase(), process.env.PB_PATH, '.pub', keys.publicKey)
         }
         catch (error) {
             throw new Error(`generateKeys: ${error}`);

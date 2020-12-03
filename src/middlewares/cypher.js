@@ -12,7 +12,7 @@ const cryptoMiddleware = {
         }
         catch (error) {
             logger.error(`encryptPassword: ${error}`);
-            return res.status(500).render('polices/register', { message: 'Se ha producido un error al cifrar la contraseña' });
+            //return res.status(500).render('polices/register', { message: 'Se ha producido un error al cifrar la contraseña' });
         }
         params.password = password;
         req.body = params;
@@ -22,7 +22,7 @@ const cryptoMiddleware = {
     async generateKeyPair(req, res, next) {
         const params = req.body;
         try {
-            await utilities.generateKeys(params.name, params.password);
+            await utilities.generateKeys(params.username, params.password);
         }
         catch (error) {
             logger.error(`generateKeyPair: ${error}`);
