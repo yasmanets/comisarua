@@ -1,19 +1,14 @@
 'use strict'
 
-class User {
-    constructor(user) {
-        this.id = user.id;
-        this.name = user.name;
-        this.surname = user.surname;
-        this.identificationNumber = user.identificationNumber;
-        this.password = user.password;
-        this.roleId = user.roleId;
-        this.phone = user.phone;
-        this.studies = user.studies;
-        this.salary = user.salary;
-        this.entryDate = user.entryDate;
-        this.departureDate = user.departureDate;
-    }
-}
+var mongoose = require('mongoose')
+var Schema = mongoose.Schema;
 
-module.exports = User;
+const UserSchema = Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true},
+    role: {type: String, default: "police"},
+    info: { type: String, required: false },
+    documentId: {type: mongoose.Schema.Types.ObjectId, ref: 'Client'},
+});
+
+module.exports = mongoose.model('User', UserSchema);
