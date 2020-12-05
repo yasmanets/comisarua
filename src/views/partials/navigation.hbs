@@ -14,9 +14,16 @@
     </ul>
 
     <ul class="navbar-nav ml-auto">
+      {{#if isAuth}}
         <li class="nav-item">
-            <a href="/login" class="nav-link">Iniciar sesión</a>
+          <a href="/police/profile" class="nav-link">Mi perfil</a>
         </li>
+      {{else}}
+        <li class="nav-item">
+          <a href="/login" class="nav-link">Iniciar sesión</a>
+        </li>
+      {{/if}}
+
     </ul>
   </div>
 </nav>

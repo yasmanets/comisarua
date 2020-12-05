@@ -4,6 +4,9 @@ const mixed = {
     setVariables (req, res, next) {
         res.locals.success = req.flash('success');
         res.locals.error = req.flash('error');
+        res.locals.isAuth = req.session.token ? true : false;
+        res.locals.documents = req.flash('documents');
+        req.headers.authorization = req.session.token ? req.session.token : '';
         return next();
     },
 

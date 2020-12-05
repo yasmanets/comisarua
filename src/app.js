@@ -17,15 +17,28 @@ app.engine('.hbs', exphbs({
     defaultLayout: 'main',
     layoutsDir: path.join(app.get('views'), 'layouts'),
     partialsDir: path.join(app.get('views'), 'partials'),
-    extname: '.hbs'
+    extname: '.hbs',
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+        allowProtoMethodsByDefault: true
+    }
 }));
 app.set('view engine', '.hbs');
 app.use(express.urlencoded({ extended: false }));
+
 app.use(session({
-    secret: 'eee',
+    name: 'comisarua',
+    secret: process.env.SESSION_SECRET,
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 8, // 8 hours
+        httpOnly: true,
+        path: '/',
+        domain: process.env.DOMAIN
+    }
 }));
+
 app.use(flash());
 app.use(mixedMiddleware.setVariables);
 

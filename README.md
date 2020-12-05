@@ -11,4 +11,7 @@ MONGO_PWD=*c0m1sarUA2020pi*
 MONGO_DB=comisarua
 PR_PATH=xxxxx // Ask for it!
 PB_PATH=xxxxx // Ask for it!
+SESSION_SECRET=xxxxxx // Ask for it!
+TOKEN_SECRET=xxxxx // Ask for it!
+DOMAIN=localhost
 ```

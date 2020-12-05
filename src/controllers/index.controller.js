@@ -1,9 +1,9 @@
 'use strict'
 
 const UserModel = require('../models/user.model');
-const { param } = require('../routes/index.routes');
 const logger = require('../services/Logger');
 const utilities = require('../utils/utils');
+const tokenService = require('../services/Token');
 
 const indexController = {
     index (req, res) {
@@ -45,8 +45,11 @@ const indexController = {
             errors.push({ message: 'La contraseña introducida no es válida. Por favor, inténtalo de nuevo.' })
             return res.status(403).render('users/login', { errors });
         }
+        const token = tokenService.createToken(user);
         logger.info(`POST /login: ${user.id} logged`);
         req.flash('success', 'Se ha iniciado sesión con éxito.');
+        req.session.token = token;
+        req.session.role = user.role
         return res.status(200).redirect('/');
     },
 }
