@@ -6,6 +6,7 @@ const logger = require('../services/Logger');
 const C = require('../utils/constants');
 const utils = require('../utils/utils');
 const path = require('path');
+const documentModel = require('../models/document.model');
 
 
 const policeController = {
@@ -35,8 +36,21 @@ const policeController = {
         return next();
     },
 
-    informationForm (req, res) {
-        return res.status(200).render('polices/profile');
+    async informationForm (req, res) {
+        const errors = [];
+        const user = req.user;
+        const params = [];
+        params.userId = user._id
+        let documents;
+        try {
+            documents = await documentModel.find({type: 'personal', 'access': {$elemMatch: { 'userId': user._id}}});
+        }
+        catch (error) {
+            logger.error(`GET /informationForm: ${error}`);
+            errors.push({message: 'Se ha producido un error al recuperar los documentos que has subido. '});
+            return res.status(200).render('index', { errors });
+        }
+        return res.status(200).render('polices/profile', { documents });
     },
 
     async uploadPersonalInfo (req, res, next) {
@@ -68,9 +82,12 @@ const policeController = {
         const fileName = path.basename(file.originalname).split('.')[0];
         const fileExtension = path.extname(file.originalname)
         
-        document.name = fileName;
-        document.access.userId = user._id;
-        document.access.key = values.encryptedKey
+        document.title = fileName;
+        document.type = 'personal';
+        document.access = [];
+        document.access[0] = {}
+        document.access[0].userId = user._id;
+        document.access[0].key = values.encryptedKey
 
         try {
             await utils.saveFiles(fileName, '../../uploads/personalInfo/', fileExtension, values.encryptedFile);
@@ -87,7 +104,7 @@ const policeController = {
         }
 
         try {
-            await document.save;
+            await document.save();
         }
         catch (error) {
             logger.error(`POST /uploadPersonalInfo: ${error}`);

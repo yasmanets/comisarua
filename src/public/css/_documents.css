@@ -1,0 +1,7 @@
+.documents {
+    padding: 1rem;
+}
+
+.documents > div.row {
+    margin-bottom: 1rem;
+}

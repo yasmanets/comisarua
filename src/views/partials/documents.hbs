@@ -1,9 +1,23 @@
-<h4>Documentos subidos</h4>
-<hr class="rounded">
-{{#each documents}}
-    
-{{else}}
+<div class="documents">
+    <h4>Documentos subidos</h4>
+    <hr class="rounded">
+    {{#each documents}}
+    <div class="row d-flex">
+        <div class="col-6">
+            <p>Nombre: <b>{{title}}</b></p>
+        </div>
+        <div class="col-6 ml-auto d-flex">
+            <button class="btn btn-outline-secondary ml-auto mx-2">
+                <span class="fas fa-eye"> Ver</span>
+            </button>
+            <button class="btn btn-outline-secondary">
+                <span class="fas fa-trash"> Eliminar</span>
+            </button>
+        </div>
+    </div>
+    {{else}}
     <p>
         Aún no has subido ningún documento.
     </p>
-{{/each}}
+    {{/each}}
+</div>

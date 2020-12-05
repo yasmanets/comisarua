@@ -1,5 +1,7 @@
 @import "./_login.css";
 @import "./_register.css";
+@import "./_uploads.css";
+@import "./_documents.css";
 
 hr.rounded {
     border-top: .2rem solid #343a40;
