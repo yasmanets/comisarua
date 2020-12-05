@@ -1,9 +1,12 @@
 'use strict'
 
 const UserModel = require('../models/user.model');
+const DocumentModel = require('../models/document.model');
 const logger = require('../services/Logger');
 const C = require('../utils/constants');
 const utils = require('../utils/utils');
+const path = require('path');
+
 
 const policeController = {
     newPoliceForm(req, res) {
@@ -36,14 +39,64 @@ const policeController = {
         return res.status(200).render('polices/profile');
     },
 
-    uploadPersonalInfo (req, res, next) {
+    async uploadPersonalInfo (req, res, next) {
+        const errors = [];
+        const user = req.user;
+        const document = new DocumentModel();
         const file = req.file;
+        let publicKey;
         try {
-            utils.saveFiles(file.originalName, '../../uploads/personalInfo', '.pdf', file);
+            publicKey = await utils.getFile(path.join(__dirname, `${process.env.PB_PATH}/${user.username}.pub`));
+        }
+        catch (error) {
+            logger.error(`POST /uploadPersonalInfo: ${error}`);
+            errors.push({ message: 'Se ha producido un error al cifrar el documento con tus datos. Por favor, inténtalo de nuevo. '});
+            return res.status(401).render('polices/profile', { errors });
+        }
+
+        let fileContent;
+        try {
+            fileContent = await utils.getFile(path.join(__dirname, `../../uploads/personalInfo/${file.filename}`));
+        }
+        catch (error) {
+            logger.error(`POST /uploadPersonalInfo: ${error}`);
+            errors.push({ message: 'Se ha producido un error al cifrar el documento con tus datos. Por favor, inténtalo de nuevo. '});
+            return res.status(401).render('polices/profile', { errors });
+        }
+        let values = utils.encryptFile(fileContent, publicKey);
+
+        const fileName = path.basename(file.originalname).split('.')[0];
+        const fileExtension = path.extname(file.originalname)
+        
+        document.name = fileName;
+        document.access.userId = user._id;
+        document.access.key = values.encryptedKey
+
+        try {
+            await utils.saveFiles(fileName, '../../uploads/personalInfo/', fileExtension, values.encryptedFile);
         }
         catch (error) {
             logger.error(`POST /uploadPersonalInfo: ${error}`);
         }
+        try {
+            await utils.deleteFiles(file.filename, `../../uploads/personalInfo/`);
+        }
+        catch (error) {
+            logger.error(`POST /uploadPersonalInfo: ${error}`);
+
+        }
+
+        try {
+            await document.save;
+        }
+        catch (error) {
+            logger.error(`POST /uploadPersonalInfo: ${error}`);
+            errors.push({ message: 'Se ha producido un error al guardar el documento que has subido. Por favor, inténtalo de nuevo. '});
+            return res.status(401).render('polices/profile', { errors });
+        }
+        logger.info(`POST /uploadPersonalInfo: ${user._id}, ${document._id}`);
+        req.flash('success', 'Documento subido con éxito');
+        return res.status(200).redirect('/police/profile')
     }
 }
 
