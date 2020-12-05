@@ -45,27 +45,27 @@ module.exports = {
         }
         try {
             const privateKey = encryptKey(keys.privateKey, password);
-            await saveFiles(username.toLowerCase(), process.env.PR_PATH, '.pem', privateKey)
+            await this.saveFiles(username.toLowerCase(), process.env.PR_PATH, '.pem', privateKey)
         }
         catch (error) {
             throw new Error(`generateKeys: ${error}`);
         }
         try {
-            await saveFiles(username.toLowerCase(), process.env.PB_PATH, '.pub', keys.publicKey)
+            await this.saveFiles(username.toLowerCase(), process.env.PB_PATH, '.pub', keys.publicKey)
         }
         catch (error) {
             throw new Error(`generateKeys: ${error}`);
         }
-    }
-}
+    },
 
-async function saveFiles(fileName, storePath, extension, content) {
-    const filePath = path.join(__dirname, storePath);
-    try {
-        await writeFile(filePath + `/${fileName}${extension}`, content);
-    }
-    catch (error) {
-        throw new Error(`saveFiles: ${error}`);
+    async saveFiles (fileName, storePath, extension, content) {
+        const filePath = path.join(__dirname, storePath);
+        try {
+            await writeFile(filePath + `/${fileName}${extension}`, content);
+        }
+        catch (error) {
+            throw new Error(`saveFiles: ${error}`);
+        }
     }
 }
 

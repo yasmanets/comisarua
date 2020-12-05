@@ -3,6 +3,7 @@
 const UserModel = require('../models/user.model');
 const logger = require('../services/Logger');
 const C = require('../utils/constants');
+const utils = require('../utils/utils');
 
 const policeController = {
     newPoliceForm(req, res) {
@@ -29,6 +30,20 @@ const policeController = {
         req.flash('success', 'Policia registrado con éxito');
         res.status(200).redirect('/')
         return next();
+    },
+
+    informationForm (req, res) {
+        return res.status(200).render('polices/uploadInfo');
+    },
+
+    uploadPersonalInfo (req, res, next) {
+        const file = req.file;
+        try {
+            utils.saveFiles(file.originalName, '../../uploads/personalInfo', '.pdf', file);
+        }
+        catch (error) {
+            logger.error(`POST /uploadPersonalInfo: ${error}`);
+        }
     }
 }
 
