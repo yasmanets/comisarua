@@ -48,7 +48,8 @@ const indexController = {
         const token = tokenService.createToken(user);
         logger.info(`POST /login: ${user.id} logged`);
         req.flash('success', 'Se ha iniciado sesión con éxito.');
-        res.cookie('token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 8 });
+        req.session.token = token;
+        req.session.role = user.role
         return res.status(200).redirect('/');
     },
 }

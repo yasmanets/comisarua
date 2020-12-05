@@ -7,7 +7,7 @@ const DocumentSchema = Schema({
     title: { type: String, required: true},
     access: [
         { userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }},
-        { key: { type: String, required: true }}
+        { key: { type: String, required: true }},
     ],
 });
 

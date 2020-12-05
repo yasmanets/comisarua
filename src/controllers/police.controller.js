@@ -33,7 +33,7 @@ const policeController = {
     },
 
     informationForm (req, res) {
-        return res.status(200).render('polices/uploadInfo');
+        return res.status(200).render('polices/profile');
     },
 
     uploadPersonalInfo (req, res, next) {

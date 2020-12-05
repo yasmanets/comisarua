@@ -1,0 +1,16 @@
+<h4>Subir documentación</h4>
+<hr class="rounded">
+<form action="/police/info" method="POST" enctype="multipart/form-data" class="form-container">
+    <div class="form-row">
+        <div class="col-md-12 mb-3">
+            <p>Debes adjuntar un documento <b>pdf</b> con información personal relevante por ejemplo:
+                nombre, apellidos, dirreción, etc.</p>
+            <input type="file" class="form-control-file" id="file" name="file" accept="application/pdf" required
+                title="El nombre de usuario es obligatorio">
+        </div>
+    </div>
+
+    <div class="d-flex">
+        <button class="btn btn-outline-secondary ml-auto">Subir documento</button>
+    </div>
+</form>
