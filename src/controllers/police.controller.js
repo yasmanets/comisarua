@@ -166,9 +166,8 @@ const policeController = {
                     return res.status(500).render('index', { errors });
                 }
                 let clearFile = utils.decryptFile(file, clearKey, document._id)
-                let xx
                 try {
-                    xx = await utils.saveFiles(document.title, '../../uploads/temp', '.pdf', clearFile);
+                    await utils.saveFiles(document.title, '../../uploads/temp', '.pdf', clearFile);
                 }
                 catch (error) {
                     logger.error(`POST /uploadPersonalInfo: ${error}`);
