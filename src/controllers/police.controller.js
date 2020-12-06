@@ -6,7 +6,6 @@ const logger = require('../services/Logger');
 const C = require('../utils/constants');
 const utils = require('../utils/utils');
 const path = require('path');
-const documentModel = require('../models/document.model');
 
 
 const policeController = {
@@ -43,7 +42,7 @@ const policeController = {
         params.userId = user._id
         let documents;
         try {
-            documents = await documentModel.find({type: 'personal', 'access': {$elemMatch: { 'userId': user._id}}});
+            documents = await DocumentModel.find({type: 'personal', 'access': {$elemMatch: { 'userId': user._id}}});
         }
         catch (error) {
             logger.error(`GET /informationForm: ${error}`);
@@ -77,7 +76,7 @@ const policeController = {
             errors.push({ message: 'Se ha producido un error al cifrar el documento con tus datos. Por favor, inténtalo de nuevo. '});
             return res.status(401).render('polices/profile', { errors });
         }
-        let values = utils.encryptFile(fileContent, publicKey);
+        let values = utils.encryptFile(fileContent, publicKey, document._id);
 
         const fileName = path.basename(file.originalname).split('.')[0];
         const fileExtension = path.extname(file.originalname)
@@ -114,6 +113,82 @@ const policeController = {
         logger.info(`POST /uploadPersonalInfo: ${user._id}, ${document._id}`);
         req.flash('success', 'Documento subido con éxito');
         return res.status(200).redirect('/police/profile')
+    },
+
+    async viewDocument (req, res, next) {
+        const errors = [];
+        const id = req.params.id;
+        let user = req.user;
+
+        if (!id || !user) {
+            logger.warn(`GET /viewDocument: req.params.id or req.user not exists`);
+            errors.push({ message: 'La peteción no se ha formulado correctamente. Por favor, inténtalo de nuevo. '});
+            return res.status(400).render('index', { errors });
+        }
+        try {
+            user = await UserModel.findById(user._id);
+        }
+        catch (error) {
+            logger.warn(`GET /viewDocument: ${error}`);
+            errors.push({ message: 'Se ha producido un error al obtener el documento que buscas. Por favor, inténtalo de nuevo. '});
+            return res.status(500).render('index', { errors });
+        }
+
+        let document;
+        try {
+            document = await DocumentModel.findById(id);
+        }
+        catch (error) {
+            logger.warn(`GET /viewDocument: ${error}`);
+            errors.push({ message: 'Se ha producido un error al obtener el documento que buscas. Por favor, inténtalo de nuevo. '});
+            return res.status(500).render('index', { errors });
+        }
+
+        for(const accessGranted of document.access) {
+            if (accessGranted.userId.toString() === user._id.toString()) {
+                let privateKey;
+                try {
+                    privateKey = await utils.getFile(path.join(__dirname, `${process.env.PR_PATH}/${user.username}.pem`));
+                }
+                catch (error) {
+                    logger.error(`POST /viewDocument: ${error}`);
+                    errors.push({ message: 'Se ha producido un error al obtener el documento que buscas. Por favor, inténtalo de nuevo. '});
+                    return res.status(500).render('index', { errors });
+                }
+                const clearKey = utils.decryptKey(accessGranted.key, privateKey.toString('utf-8'), user);
+                let file;
+                try {
+                    file = await utils.getFile(path.join(__dirname, `../../uploads/personalInfo/${document.title}.pdf`));
+                }
+                catch (error) {
+                    logger.error(`POST /viewDocument: ${error}`);
+                    errors.push({ message: 'Se ha producido un error al obtener el documento que buscas. Por favor, inténtalo de nuevo. '});
+                    return res.status(500).render('index', { errors });
+                }
+                let clearFile = utils.decryptFile(file, clearKey, document._id)
+                let xx
+                try {
+                    xx = await utils.saveFiles(document.title, '../../uploads/temp', '.pdf', clearFile);
+                }
+                catch (error) {
+                    logger.error(`POST /uploadPersonalInfo: ${error}`);
+                }
+                const options = {
+                    root: path.join(__dirname, `../../uploads/temp/`),
+                    headers: {
+                        'Content-Type': `application/pdf; name=${document.title}}.pdf`,
+                        'Content-Disposition': `attachment; filename=${document.title}}.pdf`,
+                    },
+                }
+                logger.info(`GET /viewDocument: ${user._id}, ${document.title}`);
+                return res.status(200).sendFile(`${document.title}.pdf`, options);
+            }
+            else {
+                logger.warn(`GET /viewDocument: ${user._id} does not have permissions`);
+                errors.push({ message: 'No tienes permisos para ver el documento. '});
+                return res.status(401).render('index', { errors });
+            }
+        }
     }
 }
 
