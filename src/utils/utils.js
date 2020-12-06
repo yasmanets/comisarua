@@ -34,11 +34,11 @@ module.exports = {
             keys = await generateKeyPair('rsa', {
                 modulusLength: 1024,
                 publicKeyEncoding: {
-                    type: 'spki',
+                    type: 'pkcs1',
                     format: 'pem',
                 },
                 privateKeyEncoding: {
-                    type: 'pkcs8',
+                    type: 'pkcs1',
                     format: 'pem',
                     cipher: 'aes-256-cbc',
                     passphrase: password
@@ -71,18 +71,36 @@ module.exports = {
         catch (error) {
             throw new Error(`getFile: ${path} doesn't exists.`);
         }
-        return file.toString('utf-8');
+        return file;
     },
 
-    encryptFile(file, publicKey) {
+    encryptFile(file, publicKey, documentId) {
         const iv = crypto.randomBytes(16);
-        const seed = crypto.createHash('sha512').update(file).digest('hex').substring(0, 32);
+        const seed = crypto.createHash('sha512').update(documentId.toString()).digest('hex').substring(0, 32);
         const cipher = crypto.createCipheriv(C.AES_512, Buffer.from(seed), iv);
         let encryptedFile = cipher.update(file);
         encryptedFile = Buffer.concat([encryptedFile, cipher.final()]);
-        const buffer = Buffer.from(`${seed}/${iv}`);
-        const encryptedKey = crypto.publicEncrypt({key: publicKey, padding: RSA_PKCS1_OAEP_PADDING}, buffer).toString('hex');
+        const buffer = Buffer.from(`${seed}/${iv.toString('hex')}`);
+        const encryptedKey = crypto.publicEncrypt(publicKey, buffer).toString('hex');
         return { encryptedFile, encryptedKey};
+    },
+
+    decryptFile(file, key, documentId) {
+        const iv = Buffer.from(key.split('/')[1], 'hex');
+        const seed = crypto.createHash('sha512').update(documentId.toString()).digest('hex').substring(0, 32);
+        let decipher = crypto.createDecipheriv(C.AES_512, Buffer.from(seed), iv);
+        let clearFile = decipher.update(file);
+        return Buffer.concat([clearFile, decipher.final()]);
+    },
+
+    decryptKey(key, encPrivateKey, user) {
+        const iv = Buffer.from(encPrivateKey.split('/')[1], 'hex');
+        let privateKey = Buffer.from(encPrivateKey.split('/')[0], 'hex');
+        const seed = crypto.createHash('sha256').update(user.password).digest('hex').substring(0, 32);
+        let decipher = crypto.createDecipheriv(C.AES_512, Buffer.from(seed), iv)
+        privateKey = decipher.update(privateKey);
+        privateKey = Buffer.concat([privateKey, decipher.final()]).toString();
+        return crypto.privateDecrypt({key: privateKey, passphrase: user.password}, Buffer.from(key, 'hex')).toString();
     },
 
     async saveFiles(fileName, storePath, extension, content) {
