@@ -14,6 +14,12 @@ const indexController = {
         return res.status(200).render('users/login');
     },
 
+    logout (req, res) {
+        req.session.token = "";
+        req.session.destroy();
+        return res.status(200).redirect('/');
+    },
+
     async login (req, res) {
         const errors = [];
         const params = req.body;
