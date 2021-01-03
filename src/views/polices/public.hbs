@@ -7,8 +7,8 @@
         <div class="row checks mb-3">
             {{#each polices}}
             <div class="form-check col-4">
-                <input class="form-check-input" type="checkbox" value="{{_id}}" id="policesCheck" name="policesCheck"/>
-                <label class="form-check-label" for="policesCheck">{{username}}</label>
+                <input class="form-check-input" type="checkbox" value="{{_id}}-{{username}}" id="polices" name="polices"/>
+                <label class="form-check-label" for="polices">{{username}}</label>
             </div>
             {{/each}}
         </div>

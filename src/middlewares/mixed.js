@@ -6,6 +6,7 @@ const mixed = {
         res.locals.error = req.flash('error');
         res.locals.isAuth = req.session.token ? true : false;
         res.locals.documents = req.flash('documents');
+        res.locals.polices = req.flash('polices');
         req.headers.authorization = req.session.token ? req.session.token : '';
         return next();
     },
