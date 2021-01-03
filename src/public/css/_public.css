@@ -1,0 +1,16 @@
+.policeList {
+    margin-top: .1rem;
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: 0rem 0.2rem 0.2rem 0rem #00000015;
+}
+
+.checks {
+    text-align: center;
+    -webkit-text-align: center
+}
+
+.noPolices {
+    text-align: center;
+    -webkit-text-align: center
+}

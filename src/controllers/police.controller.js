@@ -35,6 +35,22 @@ const policeController = {
         return next();
     },
 
+    async getAllPolices (req, res, next) {
+        const errors = [];
+        const user = req.user;
+        let polices;
+        try {
+            polices = await UserModel.find({_id: {$ne: user}})
+        }
+        catch (error) {
+            logger.error(`GET getAllPolices: ${error}`)
+            errors.push({message: 'Se ha producido un error al listar los policias'});
+            return res.status(500).render('index', { errors });
+        }
+        logger.info(`GET getAllPolices: ${polices.length}`);
+        return res.status(200).render('polices/public', { polices })
+    },
+
     async informationForm (req, res) {
         const errors = [];
         const user = req.user;
@@ -176,11 +192,13 @@ const policeController = {
                     root: path.join(__dirname, `../../uploads/temp/`),
                     headers: {
                         'Content-Type': `application/pdf; name=${document.title}}.pdf`,
-                        'Content-Disposition': `attachment; filename=${document.title}}.pdf`,
+                        'Content-Disposition': `attachment; filename=${document.title}.pdf`,
                     },
                 }
+                req.document = document
                 logger.info(`GET /viewDocument: ${user._id}, ${document.title}`);
-                return res.status(200).sendFile(`${document.title}.pdf`, options);
+                res.status(200).sendFile(`${document.title}.pdf`, options);
+                return next();
             }
             else {
                 logger.warn(`GET /viewDocument: ${user._id} does not have permissions`);
@@ -188,7 +206,13 @@ const policeController = {
                 return res.status(401).render('index', { errors });
             }
         }
-    }
+    },
+
+    async uploadPublicInfo (req, res, next) {
+        const params = req.body;
+        return res.status(200);
+
+    },
 }
 
 module.exports = policeController;

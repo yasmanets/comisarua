@@ -2,6 +2,9 @@
 @import "./_register.css";
 @import "./_uploads.css";
 @import "./_documents.css";
+@import "./_profile.css";
+@import "./_public.css";
+
 
 hr.rounded {
     border-top: .2rem solid #343a40;
