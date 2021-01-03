@@ -15,5 +15,5 @@ router.get('/profile', auth.authorize(roles.police), policeController.informatio
 router.post('/info', auth.authorize(roles.police), upload, policeController.uploadDocument);
 router.get('/personalDocument/:id', auth.authorize(roles.police), policeController.viewDocument);
 router.get('/public', auth.authorize(roles.police), policeController.getAllPolices)
-router.post('/public', auth.authorize(roles.police), upload, policeController.uploadPublicInfo)
+router.post('/public', auth.authorize(roles.police), upload, policeController.isShared, policeController.uploadPublicInfo)
 module.exports = router

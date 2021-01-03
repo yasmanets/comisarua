@@ -115,7 +115,6 @@ const policeController = {
         }
         catch (error) {
             logger.error(`POST /uploadDocument: ${error}`);
-
         }
 
         try {
@@ -206,6 +205,23 @@ const policeController = {
                 return res.status(401).render('index', { errors });
             }
         }
+    },
+
+    async isShared (req, res, next) {
+        const params = req.body;
+        if (params.polices) {
+            return next();
+        }
+        const file = req.file;
+        try {
+            await utils.deleteFiles(file.filename, `../../uploads/temp/`);
+        }
+        catch (error) {
+            logger.error(`POST /isShared: ${error}`);
+        }
+        logger.info(`POST isShared: ${file.filename} removed`);
+        req.flash('error', 'Debes seleccionar al menos un policía con el que compartir la informacióin');
+        return res.status(400).redirect('/police/public');
     },
 
     async uploadPublicInfo (req, res, next) {
