@@ -48,7 +48,7 @@ const policeController = {
             return res.status(500).render('index', { errors });
         }
         logger.info(`GET getAllPolices: ${polices.length}`);
-        return res.status(200).render('polices/public', { polices })
+        return res.status(200).render('polices/publish', { polices })
     },
 
     async informationForm (req, res) {
@@ -221,24 +221,84 @@ const policeController = {
         }
         logger.info(`POST isShared: ${file.filename} removed`);
         req.flash('error', 'Debes seleccionar al menos un policía con el que compartir la informacióin');
-        return res.status(400).redirect('/police/public');
+        return res.status(400).redirect('/police/publish');
     },
 
     async uploadPublicInfo (req, res, next) {
         const params = req.body;
         const errors = [];
-        if (!params.polices) {
-            req.flash('error', 'Debes seleccionar al menos un policía con el que compartir la informacióin');
-            return res.status(400).redirect('/police/public');
-
-        }
         const user = req.user;
         const document = new DocumentModel();
+        document.access = [];
         const file = req.file;
+        let fileContent;
+        try {
+            fileContent = await utils.getFile(path.join(__dirname, `../../uploads/temp/${file.filename}`));
+        }
+        catch (error) {
+            logger.error(`POST /uploadPublicInfo: ${error}`);
+            errors.push({ message: 'Se ha producido un error al cifrar el documento con tus datos. Por favor, inténtalo de nuevo. '});
+            return res.status(401).render('polices/publish', { errors });
+        }
+        let values = utils.onlyEncryptFile(fileContent, document._id);
+        const fileName = path.basename(file.originalname).split('.')[0];
+        const fileExtension = path.extname(file.originalname)
+        document.title = fileName;
+        document.type = params.type;
         let publicKey;
-        
-        return res.status(200);
+        try {
+            publicKey = await utils.getFile(path.join(__dirname, `${process.env.PB_PATH}/${user.username}.pub`));
+        }
+        catch (error) {
+            logger.error(`POST /uploadPublicInfo: ${error}`);
+            errors.push({ message: 'Se ha producido un error al cifrar el documento con tus datos. Por favor, inténtalo de nuevo. '});
+            return res.status(401).render('polices/publish', { errors });
+        }
+        const encryptedKey = utils.encryptKey(values.key, publicKey);
+        document.access[0] = {};
+        document.access[0].userId = user._id;
+        document.access[0].key = encryptedKey
 
+        params.polices.forEach(async (police, index) => {
+            let publicKey;
+            const id = police.split('-')[0];
+            const username = police.split('-')[1];
+            try {
+                publicKey = await utils.getFile(path.join(__dirname, `${process.env.PB_PATH}/${username}.pub`));
+            }
+            catch (error) {
+                logger.error(`POST /uploadPublicInfo: ${error}`);
+                errors.push({ message: 'Se ha producido un error al cifrar el documento con tus datos. Por favor, inténtalo de nuevo. '});
+                return res.status(401).render('polices/publish', { errors });
+            }
+            const encryptedKey = utils.encryptKey(values.key, publicKey);
+            document.access[index+1] = {}
+            document.access[index+1].userId = id;
+            document.access[index+1].key = encryptedKey;
+        });
+        try {
+            await utils.saveFiles(fileName, '../../uploads/sharedInfo/', fileExtension, values.encryptedFile);
+        }
+        catch (error) {
+            logger.error(`POST /uploadPublicInfo: ${error}`);
+        }
+        try {
+            await utils.deleteFiles(file.filename, `../../uploads/temp/`);
+        }
+        catch (error) {
+            logger.error(`POST /uploadPublicInfo: ${error}`);
+        }
+        try {
+            await document.save();
+        }
+        catch (error) {
+            logger.error(`POST /uploadPublicInfo: ${error}`);
+            errors.push({ message: 'Se ha producido un error al guardar el documento que has subido. Por favor, inténtalo de nuevo. '});
+            return res.status(401).render('polices/publish', { errors });
+        }
+        logger.info(`POST /uploadDocument: ${user._id}, ${document._id}`);
+        req.flash('success', 'Documento subido con éxito');
+        return res.status(200).redirect('/police/publish');
     },
 }
 

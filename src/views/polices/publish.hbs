@@ -2,7 +2,7 @@
     <h4>Listado de policías</h4>
     <hr class="rounded">
     {{#if polices}}
-    <form action="/police/public" method="POST" enctype="multipart/form-data" class="form-container">
+    <form action="/police/publish" method="POST" enctype="multipart/form-data" class="form-container">
         <p>Selecciona el usuario o usuarios con los que quieres compartir el documento:</p>
         <div class="row checks mb-3">
             {{#each polices}}

@@ -15,8 +15,14 @@
         <li class="nav-item">
           <a href="/police/profile" class="nav-link">Mi perfil</a>
         </li>
-        <li class="nav-item">
-          <a href="/police/public" class="nav-link">Información pública</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Información pública
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/police/publish">Subir documento</a>
+            <a class="dropdown-item" href="#">Listar documentos</a>
+          </div>
         </li>
       {{/if}}
     </ul>

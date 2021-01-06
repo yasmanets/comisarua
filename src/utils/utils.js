@@ -85,6 +85,20 @@ module.exports = {
         return { encryptedFile, encryptedKey};
     },
 
+    onlyEncryptFile(file, documentId) {
+        const iv = crypto.randomBytes(16);
+        const seed = crypto.createHash('sha512').update(documentId.toString()).digest('hex').substring(0, 32);
+        const cipher = crypto.createCipheriv(C.AES_512, Buffer.from(seed), iv);
+        let encryptedFile = cipher.update(file);
+        encryptedFile = Buffer.concat([encryptedFile, cipher.final()]);
+        const key = Buffer.from(`${seed}/${iv.toString('hex')}`);
+        return { encryptedFile, key };
+    },
+
+    encryptKey(key, publicKey) {
+        return crypto.publicEncrypt(publicKey, key).toString('hex');
+    },
+
     decryptFile(file, key, documentId) {
         const iv = Buffer.from(key.split('/')[1], 'hex');
         const seed = crypto.createHash('sha512').update(documentId.toString()).digest('hex').substring(0, 32);

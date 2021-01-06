@@ -3,8 +3,7 @@
 @import "./_uploads.css";
 @import "./_documents.css";
 @import "./_profile.css";
-@import "./_public.css";
-
+@import "./_publish.css";
 
 hr.rounded {
     border-top: .2rem solid #343a40;
