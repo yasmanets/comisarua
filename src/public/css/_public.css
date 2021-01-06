@@ -1,0 +1,14 @@
+.public {
+    margin-top: .1rem;
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: 0rem 0.2rem 0.2rem 0rem #00000015;
+}
+
+.actions {
+    text-align: center;
+}
+
+.actions > div {
+    text-align: center;
+}

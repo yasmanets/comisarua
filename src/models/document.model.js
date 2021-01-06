@@ -10,6 +10,7 @@ const DocumentSchema = Schema({
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         key: { type: String, required: true }
     }],
+    publisher: { type: String, required: false },
 });
 
 module.exports = mongoose.model('Document', DocumentSchema);

@@ -134,6 +134,7 @@ const policeController = {
         const errors = [];
         const id = req.params.id;
         let user = req.user;
+        const documentPath = req.originalUrl.includes('personalDocument') ? 'personalInfo' : 'sharedInfo';
 
         if (!id || !user) {
             logger.warn(`GET /viewDocument: req.params.id or req.user not exists`);
@@ -173,7 +174,7 @@ const policeController = {
                 const clearKey = utils.decryptKey(accessGranted.key, privateKey.toString('utf-8'), user);
                 let file;
                 try {
-                    file = await utils.getFile(path.join(__dirname, `../../uploads/personalInfo/${document.title}.pdf`));
+                    file = await utils.getFile(path.join(__dirname, `../../uploads/${documentPath}/${document.title}.pdf`));
                 }
                 catch (error) {
                     logger.error(`POST /viewDocument: ${error}`);
@@ -187,22 +188,13 @@ const policeController = {
                 catch (error) {
                     logger.error(`POST /uploadDocument: ${error}`);
                 }
+
                 const options = {
                     root: path.join(__dirname, `../../uploads/temp/`),
-                    headers: {
-                        'Content-Type': `application/pdf; name=${document.title}}.pdf`,
-                        'Content-Disposition': `attachment; filename=${document.title}.pdf`,
-                    },
                 }
                 req.document = document
                 logger.info(`GET /viewDocument: ${user._id}, ${document.title}`);
-                res.status(200).sendFile(`${document.title}.pdf`, options);
-                return next();
-            }
-            else {
-                logger.warn(`GET /viewDocument: ${user._id} does not have permissions`);
-                errors.push({ message: 'No tienes permisos para ver el documento. '});
-                return res.status(401).render('index', { errors });
+                return res.status(200).sendFile(`${document.title}.pdf`, options);
             }
         }
     },
@@ -245,6 +237,7 @@ const policeController = {
         const fileExtension = path.extname(file.originalname)
         document.title = fileName;
         document.type = params.type;
+        document.publisher = user.username;
         let publicKey;
         try {
             publicKey = await utils.getFile(path.join(__dirname, `${process.env.PB_PATH}/${user.username}.pub`));
@@ -299,6 +292,23 @@ const policeController = {
         logger.info(`POST /uploadDocument: ${user._id}, ${document._id}`);
         req.flash('success', 'Documento subido con éxito');
         return res.status(200).redirect('/police/publish');
+    },
+
+    async getPublicDocuments (req, res, next) {
+        const errors = [];
+        const user = req.user;
+        const params = [];
+        params.userId = user._id
+        let documents;
+        try {
+            documents = await DocumentModel.find({type: {$ne: 'personal'}, access: {$elemMatch: { 'userId': user._id}}});
+        }
+        catch (error) {
+            logger.error(`GET /getPublicDocuments: ${error}`);
+            errors.push({message: 'Se ha producido un error al recuperar los documentos.' });
+            return res.status(200).render('index', { errors });
+        }
+        return res.status(200).render('polices/publicDocuments', { documents });
     },
 }
 

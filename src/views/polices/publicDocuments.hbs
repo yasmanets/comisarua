@@ -1,0 +1,41 @@
+<div class="col-12 profile">
+    <h2>Información compartida</h2>
+    <hr class="rounded">
+    <p>
+        Aquí podrás leer todos los documentos compartidos, tanto los que hayas subido como los que hayan compartido contigo.
+    </p>
+    <div class="documents">
+    <h4>Documentos subidos</h4>
+    <hr class="rounded">
+    {{#if documents}}
+    <table class="table">
+        <thead>
+            <th scope="col">Documento</th>
+            <th scope="col">Autor</th>
+            <th class="actions" scope="col">Acciones</th>
+        </thead>
+        <tbody>
+            {{#each documents}}
+            <tr>
+                <td>{{title}}</td>
+                <td>{{publisher}}</td>
+                <td class="actions">
+                    <div>
+                        <a class="btn btn-outline-secondary ml-auto mx-2" href="/police/publicDocument/{{_id}}" download>
+                            <span class="fas fa-eye"> Ver</span>
+                        </a>
+                        <button class="btn btn-outline-secondary">
+                            <span class="fas fa-trash"> Eliminar</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{else}}
+    <p>
+        No hay ningún documento para mostrar.
+    </p>
+    {{/if}}
+</div>
