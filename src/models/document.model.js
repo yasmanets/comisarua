@@ -11,6 +11,7 @@ const DocumentSchema = Schema({
         key: { type: String, required: true }
     }],
     publisher: { type: String, required: false },
+    signature: { type: String, required: false },
 });
 
 module.exports = mongoose.model('Document', DocumentSchema);

@@ -117,6 +117,15 @@ module.exports = {
         return crypto.privateDecrypt({key: privateKey, passphrase: user.password}, Buffer.from(key, 'hex')).toString();
     },
 
+    decryptPrivateKey (privateKey, user) {
+        const iv = Buffer.from(privateKey.split('/')[1], 'hex');
+        let pKey = Buffer.from(privateKey.split('/')[0], 'hex');
+        const seed = crypto.createHash('sha256').update(user.password).digest('hex').substring(0, 32);
+        let decipher = crypto.createDecipheriv(C.AES_512, Buffer.from(seed), iv)
+        pKey = decipher.update(pKey);
+        return Buffer.concat([pKey, decipher.final()]);
+    },
+
     async saveFiles(fileName, storePath, extension, content) {
         const filePath = path.join(__dirname, storePath);
         try {

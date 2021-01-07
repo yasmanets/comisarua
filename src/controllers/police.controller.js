@@ -291,7 +291,10 @@ const policeController = {
         }
         logger.info(`POST /uploadDocument: ${user._id}, ${document._id}`);
         req.flash('success', 'Documento subido con éxito');
-        return res.status(200).redirect('/police/publish');
+        res.status(200).redirect('/police/publish');
+        req.fileContent = fileContent;
+        req.document = document;
+        return next();
     },
 
     async getPublicDocuments (req, res, next) {
