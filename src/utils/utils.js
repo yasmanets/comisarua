@@ -126,6 +126,18 @@ module.exports = {
         return Buffer.concat([pKey, decipher.final()]);
     },
 
+    async publicDecrypt (keyOwner, encrypted) {
+        const keyPath = path.join(__dirname, `${process.env.PB_PATH}/${keyOwner}.pub`);
+        let publicKey;
+        try {
+            publicKey = await this.getFile(keyPath);
+        }
+        catch (error) {
+            throw new Error(error);
+        }
+        return crypto.publicDecrypt({key: publicKey}, Buffer.from(encrypted, 'hex')).toString('hex');
+    },
+
     async saveFiles(fileName, storePath, extension, content) {
         const filePath = path.join(__dirname, storePath);
         try {

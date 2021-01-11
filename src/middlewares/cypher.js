@@ -54,7 +54,7 @@ const cryptoMiddleware = {
         privateKey = utilities.decryptPrivateKey(privateKey.toString('utf-8'), user);
         document.signature = crypto.privateEncrypt({
             key: privateKey,
-            passphrase: user.password
+            passphrase: user.password,
         }, Buffer.from(hash, 'hex')).toString('hex');
         try {
             await document.save();

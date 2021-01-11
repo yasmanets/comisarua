@@ -19,5 +19,6 @@ router.get('/publish', auth.authorize(roles.police), policeController.getAllPoli
 router.post('/publish', auth.authorize(roles.police), upload, policeController.isShared, policeController.uploadPublicInfo, cipher.createSignature);
 router.get('/documents', auth.authorize(roles.police), policeController.getPublicDocuments);
 router.get('/publicDocument/:id', auth.authorize(roles.police), policeController.viewDocument);
+router.get('/verifySignature/:id', auth.authorize(roles.police), policeController.verifySignature)
 
 module.exports = router

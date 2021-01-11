@@ -6,7 +6,7 @@ const logger = require('../services/Logger');
 const C = require('../utils/constants');
 const utils = require('../utils/utils');
 const path = require('path');
-
+const crypto = require('crypto');
 
 const policeController = {
     newPoliceForm(req, res) {
@@ -262,7 +262,7 @@ const policeController = {
             catch (error) {
                 logger.error(`POST /uploadPublicInfo: ${error}`);
                 errors.push({ message: 'Se ha producido un error al cifrar el documento con tus datos. Por favor, inténtalo de nuevo. '});
-                return res.status(401).render('polices/publish', { errors });
+                return res.status(500).render('polices/publish', { errors });
             }
             const encryptedKey = utils.encryptKey(values.key, publicKey);
             document.access[index+1] = {}
@@ -313,6 +313,72 @@ const policeController = {
         }
         return res.status(200).render('polices/publicDocuments', { documents });
     },
+
+    async verifySignature (req, res, next) {
+        const errors = [];
+        const id = req.params.id;
+        let user = req.user;
+        try {
+            user = await UserModel.findById(req.user._id);
+        }
+        catch (error) {
+            logger.warn(`GET /verifySignature: ${error}`);
+            errors.push({ message: 'Se ha producido un error al obtener el documento que buscas. Por favor, inténtalo de nuevo. '});
+            return res.status(500).render('index', { errors });
+        }
+        let document;
+        try {
+            document = await DocumentModel.findById(id);
+        }
+        catch (error) {
+            logger.error(`GET verifySignature: ${error}`);
+            return res.status(500).redirect('/police/documents');
+        }
+        const key = DocumentModel.hasPermission(user._id, document.access);
+        if (!key) {
+            logger.warn(`GET /verifySignature: ${user._id} doesn't have permissions`);
+            errors.push({ message: 'No tienes permisos para acceder a este documento.' });
+            return res.status(401).render('polices/publish', { errors }); 
+        }
+        let privateKey;
+        try {
+            privateKey = await utils.getFile(path.join(__dirname, `${process.env.PR_PATH}/${user.username}.pem`));
+        }
+        catch (error) {
+            logger.error(`POST /verifySignature: ${error}`);
+            errors.push({ message: 'Se ha producido un error al obtener el documento que buscas. Por favor, inténtalo de nuevo. '});
+            return res.status(500).render('index', { errors });
+        }
+        const clearKey = utils.decryptKey(key, privateKey.toString('utf-8'), user);
+        let file;
+        try {
+            file = await utils.getFile(path.join(__dirname, `../../uploads/sharedInfo/${document.title}.pdf`));
+        }
+        catch (error) {
+            logger.error(`POST /verifySignature: ${error}`);
+            errors.push({ message: 'Se ha producido un error al verificar la firma digital. Por favor, inténtalo de nuevo. '});
+            return res.status(500).render('index', { errors });
+        }
+        let clearFile = utils.decryptFile(file, clearKey, document._id)
+        const hash = crypto.createHash('sha512').update(clearFile).digest('hex');
+        let signature;
+        try {
+            signature = await utils.publicDecrypt(document.publisher, document.signature);
+        }
+        catch (error) {
+            logger.error(`POST /verifySignature: ${error}`);
+            errors.push({ message: 'Se ha producido un error al verificar la firma digital. Por favor, inténtalo de nuevo. '});
+            return res.status(500).render('index', { errors });
+        }
+        if (signature !== hash) {
+            logger.error(`POST /verifySignature: ${user._id}, ${document._id} not verified`);
+            req.flash('error', '¡¡¡La firma digital del documento no es correcta.!!!');
+            return res.status(403).redirect('/police/documents');
+        }
+        logger.info(`GET /verifySignature: ${user._id}, ${document._id} verified`);
+        req.flash('success', 'La firma digital del documento es correcta');
+        return res.status(200).redirect('/police/documents');
+    }
 }
 
 module.exports = policeController;

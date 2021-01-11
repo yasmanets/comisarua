@@ -14,4 +14,15 @@ const DocumentSchema = Schema({
     signature: { type: String, required: false },
 });
 
+const hasPermission = function (userId, access) {
+    for (let accessGranted of access) {
+        if (accessGranted.userId.toString() === userId.toString()) {
+            return accessGranted.key;
+        }
+    }
+    return null;
+
+}
+
 module.exports = mongoose.model('Document', DocumentSchema);
+module.exports.hasPermission = hasPermission;
