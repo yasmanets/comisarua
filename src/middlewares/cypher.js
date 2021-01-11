@@ -63,7 +63,7 @@ const cryptoMiddleware = {
             logger.error(`POST /createSignature: ${error}`);
         }
         logger.error(`POST /createSignature: document ${document._id} signed: ${document.signature}`);
-        return next();
+        return;
     }
 }
 
