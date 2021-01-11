@@ -14,6 +14,15 @@
                     minlength="8" maxlength="16" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required
                     title="La contraseña debe contener almenos 1 número, 1 mayúscula, 1 minúscula y debe tener entre 8 y 16 caracteres">
             </div>
+
+            <div class="col-md-12 mb-3">
+                <label for="role">Rol</label>
+                <select class="form-control" id="role" name="role" required>
+                    <option value="commissioner">Comisario</option>
+                    <option value="police">Policía</option>
+                    <option value="prisoner">Preso</option>
+                </select>
+            </div>
         </div>
 
         <div class="d-flex">
